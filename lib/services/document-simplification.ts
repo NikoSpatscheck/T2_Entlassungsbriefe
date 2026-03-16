@@ -26,13 +26,14 @@ export async function simplifyAndPersistDocument(input: SimplifyDocumentInput) {
 
   const summary = await simplifyDischargeLetter(validation.text, input.settings);
   const user = await getSessionUser();
+  const generatedTitle = summary.spokenSummary.split(/[.!?]\s/)[0]?.trim();
 
   let savedDocumentId: string | null = null;
   if (user) {
     const saved = await createDocument({
       userId: user.id,
       type: input.sourceType,
-      title: summary.summaryTitle || input.titleFallback,
+      title: generatedTitle || input.titleFallback,
       originalInput: validation.text,
       status: "verarbeitet",
       summaryText: summary.spokenSummary,

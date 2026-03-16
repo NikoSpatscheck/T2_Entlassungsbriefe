@@ -35,7 +35,7 @@ export function SimplifiedResultContent({
   return (
     <>
       <div className="mt-8 rounded-2xl border border-purple-200 bg-purple-50 p-5 sm:p-6">
-        <h2 className="text-2xl font-semibold text-purple-950">{labels.quickSummaryTitle}</h2>
+        <h2 className="text-2xl font-semibold text-purple-950">{labels.spokenSummaryTitle}</h2>
         <p className="mt-3 text-lg leading-relaxed text-purple-900">{result.spokenSummary}</p>
         <div className="mt-4">
           <AudioSummaryButton spokenSummary={result.spokenSummary} labels={labels} targetLanguage={targetLanguage} />
@@ -43,20 +43,25 @@ export function SimplifiedResultContent({
       </div>
 
       <div className="mt-8 space-y-4">
-        <ResultCard title={result.summaryTitle}>
-          <p>{result.simpleSummary}</p>
-        </ResultCard>
-
-        <ResultCard title={labels.reasonForVisitTitle}>
-          <p>{result.reasonForHospitalVisit}</p>
+        <ResultCard title={labels.nextStepsAndFollowUpTitle}>
+          {result.nextStepsAndFollowUp.length ? (
+            <div className="space-y-3">
+              {result.nextStepsAndFollowUp.map((entry) => (
+                <div key={`${entry.description}-${entry.purpose}`} className="rounded-xl bg-white p-4">
+                  <p><span className="font-semibold">{labels.descriptionLabel}:</span> {entry.description}</p>
+                  <p><span className="font-semibold">{labels.purposeLabel}:</span> {entry.purpose}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>{MISSING_INFO_TEXT}</p>
+          )}
         </ResultCard>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <ResultCard title={labels.keyFindingsTitle}><ListContent items={result.keyFindings} /></ResultCard>
-          <ResultCard title={labels.treatmentsTitle}><ListContent items={result.treatmentsReceived} /></ResultCard>
-          <ResultCard title={labels.nextStepsTitle}><ListContent items={result.nextSteps} /></ResultCard>
-          <ResultCard title={labels.warningSignsTitle}><ListContent items={result.warningSigns} /></ResultCard>
-          <ResultCard title={labels.followUpTitle}><ListContent items={result.followUp} /></ResultCard>
+          <ResultCard title={labels.secondaryDiagnosesTitle}><ListContent items={result.secondaryDiagnoses} /></ResultCard>
+          <ResultCard title={labels.whatToLookOutForTitle}><ListContent items={result.whatToLookOutFor} /></ResultCard>
+          <ResultCard title={labels.anythingToTakeCareOfTitle}><ListContent items={result.anythingToTakeCareOf} /></ResultCard>
           <ResultCard title={labels.doctorQuestionsTitle}><ListContent items={result.questionsForDoctor} /></ResultCard>
         </div>
 
@@ -89,7 +94,8 @@ export function SimplifiedResultContent({
         </ResultCard>
 
         <article className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-lg text-amber-900">
-          <p className="font-medium">{result.importantDisclaimer}</p>
+          <h3 className="font-semibold">{labels.importantDisclaimerTitle}</h3>
+          <p className="mt-2 font-medium">{result.importantDisclaimer}</p>
         </article>
       </div>
 

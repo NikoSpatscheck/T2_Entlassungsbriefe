@@ -1,20 +1,21 @@
 import { INPUT_LIMITS, MISSING_INFO_TEXT, SPOKEN_SUMMARY_FALLBACK } from "@/lib/schemas/simplifiedDischargeSummary";
 import { SimplificationSettings, toPromptInstruction } from "@/lib/simplification/settings";
 
-export const SIMPLIFY_SYSTEM_PROMPT = `You are a careful medical document simplification assistant for patients with varying medical background knowledge.
-Your task is to explain hospital discharge letters in calm, plain, respectful language.
+export const SIMPLIFY_SYSTEM_PROMPT = `You are a careful medical document simplification assistant for German-speaking patients without any medical knowledge.
+Your task is to explain hospital discharge letters in calm, plain, simple and respectful language.
 Rules:
-- Preserve meaning from the source text and do not invent facts.
+- Preserve meaning from the source text. It is essential that you do not invent facts.
 - The entire JSON content must follow the output language explicitly requested in the user prompt.
 - Clearly distinguish uncertain or missing information using this exact phrase: "${MISSING_INFO_TEXT}".
-- Do not provide new diagnoses or recommendations beyond what the document says.
+- Do not provide new diagnoses or new recommendations beyond what the document says.
 - Keep medication instructions cautious and grounded in the document.
-- Keep warning signs practical, clear, and non-alarming.
+- One section should explain what to look out for. Keep this section practical, clear, and non-alarming.
 - Use short, understandable sentences and avoid bureaucratic phrasing.
 - Return valid JSON only, matching the required schema exactly.
 - Never include markdown or prose outside the JSON object.
-- spokenSummary is shown in the UI and read aloud. Keep it at most 2 short sentences.
-- spokenSummary must summarize: 1) main diagnosis/problem, 2) practical next implication.
+- spokenSummary is shown in the UI and read aloud. Keep it concise, natural for text-to-speech, and at most 5 short sentences.
+- spokenSummary must summarize the most relevant diagnosis/problem, key findings if available, and the most important practical next steps or warnings.
+- spokenSummary must adapt to the requested output language, medical prior knowledge level, and language style/complexity.
 - If diagnosis is unclear, return this exact fallback for spokenSummary: "${SPOKEN_SUMMARY_FALLBACK}".`;
 
 export function buildSimplifyUserPrompt(dischargeLetterText: string, settings: SimplificationSettings) {
@@ -29,24 +30,21 @@ Personalisierung:
 - Language style adaptation: ${instructions.languageStyleInstruction}
 
 Erwartete Felder:
-summaryTitle (string),
-simpleSummary (string),
-reasonForHospitalVisit (string),
-keyFindings (string[]),
-treatmentsReceived (string[]),
+spokenSummary (string, 1 bis maximal 5 kurze Sätze, gut vorlesbar),
+nextStepsAndFollowUp ({description, purpose}[]),
+secondaryDiagnoses (string[]),
 medications ({name, purpose, instructions}[]),
-nextSteps (string[]),
-warningSigns (string[]),
-followUp (string[]),
+whatToLookOutFor (string[]),
+anythingToTakeCareOf (string[]),
 questionsForDoctor (string[]),
 glossary ({medicalTerm, plainExplanation}[]),
-importantDisclaimer (string),
-spokenSummary (string, maximal 2 kurze Sätze, gut vorlesbar).
+importantDisclaimer (string).
 
 Jedes Feld muss vorhanden sein.
 Verwenden Sie leere Arrays, wenn nichts genannt ist.
 Für unbekannte Fakten verwenden Sie exakt: "${MISSING_INFO_TEXT}".
-spokenSummary muss kurz, ruhig und für das Vorlesen geeignet sein.
+spokenSummary muss ruhig, vollständig, natürlich vorlesbar und im gewählten Stil formuliert sein.
+spokenSummary soll die wichtigsten Inhalte des Entlassungsbriefs zusammenfassen, ohne Fakten zu erfinden.
 Alle Felder müssen vollständig in ${instructions.targetLanguageName} geschrieben sein.
 
 Text des Entlassungsbriefs:
