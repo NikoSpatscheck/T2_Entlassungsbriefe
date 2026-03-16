@@ -1,7 +1,13 @@
 import { ActionCard } from "@/components/action-card";
 import { CameraIcon, PdfIcon, TextIcon } from "@/components/icons";
 
-export default function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ hinweis?: string }>;
+}) {
+  const params = await searchParams;
+
   return (
     <main className="mx-auto min-h-screen w-full max-w-5xl px-4 py-8 sm:px-8 sm:py-14">
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-purple-100 sm:p-10">
@@ -15,6 +21,12 @@ export default function HomePage() {
           Wählen Sie bitte den einfachsten Weg für Sie: Text einfügen, PDF hochladen oder ein Foto mit der Kamera nutzen.
           Danach erstellen wir eine klare und gut lesbare Zusammenfassung.
         </p>
+
+        {params.hinweis === "login" ? (
+          <p className="mt-6 rounded-2xl border border-purple-200 bg-purple-50 px-5 py-4 text-lg text-purple-900">
+            Bitte melden Sie sich an, um Ihre bisherigen Dokumente zu sehen.
+          </p>
+        ) : null}
 
         <div className="mt-10 grid gap-5 md:grid-cols-3">
           <ActionCard
