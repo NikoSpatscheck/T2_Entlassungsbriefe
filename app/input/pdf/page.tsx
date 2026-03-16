@@ -4,10 +4,12 @@ import { type ChangeEvent, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useRouter } from "next/navigation";
 import { BackLink } from "@/components/back-link";
+import { SimplificationSettingsSelector } from "@/components/input/simplification-settings-selector";
 import { LoadingOverlay } from "@/components/loading-overlay";
 import { PageContainer } from "@/components/page-container";
 import { ResultState } from "@/components/results/result-state";
 import { requestSimplifiedPdfSummary } from "@/lib/api/simplify";
+import { DEFAULT_SIMPLIFICATION_SETTINGS } from "@/lib/simplification/settings";
 import { saveSimplifiedResult } from "@/lib/storage/simplified-result";
 
 export default function PdfInputPage() {
@@ -17,6 +19,7 @@ export default function PdfInputPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [settings, setSettings] = useState(DEFAULT_SIMPLIFICATION_SETTINGS);
 
   useEffect(() => {
     return () => {
@@ -78,8 +81,8 @@ export default function PdfInputPage() {
     setIsLoading(true);
 
     try {
-      const response = await requestSimplifiedPdfSummary(file);
-      saveSimplifiedResult(response);
+      const response = await requestSimplifiedPdfSummary(file, settings);
+      saveSimplifiedResult(response, settings);
       router.push("/result/text");
     } catch (submitError) {
       setError(
@@ -116,6 +119,8 @@ export default function PdfInputPage() {
               ? "Angemeldet: Dieses PDF wird nach der Verarbeitung in Ihrem Verlauf gespeichert."
               : "Tipp: Melden Sie sich an, damit dieses PDF später in 'Meine bisherigen Dokumente' erscheint."}
           </p>
+
+          <SimplificationSettingsSelector settings={settings} onChange={setSettings} />
 
           {error && <ResultState title="Hinweis" message={error} tone="error" />}
 

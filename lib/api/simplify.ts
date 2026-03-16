@@ -1,4 +1,5 @@
 import { SimplifiedDischargeSummary, validateSimplifiedDischargeSummary } from "@/lib/schemas/simplifiedDischargeSummary";
+import { SimplificationSettings } from "@/lib/simplification/settings";
 
 function ensureValidResponse(data: unknown) {
   const validated = validateSimplifiedDischargeSummary(data);
@@ -9,11 +10,11 @@ function ensureValidResponse(data: unknown) {
   return validated;
 }
 
-export async function requestSimplifiedSummary(text: string): Promise<SimplifiedDischargeSummary> {
+export async function requestSimplifiedSummary(text: string, settings: SimplificationSettings): Promise<SimplifiedDischargeSummary> {
   const response = await fetch("/api/simplify", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ text, settings }),
   });
 
   const payload = (await response.json()) as { data?: unknown; error?: string };
@@ -25,9 +26,10 @@ export async function requestSimplifiedSummary(text: string): Promise<Simplified
   return ensureValidResponse(payload.data);
 }
 
-export async function requestSimplifiedPdfSummary(file: File): Promise<SimplifiedDischargeSummary> {
+export async function requestSimplifiedPdfSummary(file: File, settings: SimplificationSettings): Promise<SimplifiedDischargeSummary> {
   const formData = new FormData();
   formData.set("file", file);
+  formData.set("settings", JSON.stringify(settings));
 
   const response = await fetch("/api/simplify/pdf", {
     method: "POST",

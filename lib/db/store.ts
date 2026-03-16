@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { StoredDocument } from "@/lib/types/document";
+import { sanitizeSimplificationSettings } from "@/lib/simplification/settings";
 
 export type StoredUser = {
   id: string;
@@ -30,10 +31,11 @@ async function ensureDbFile() {
   }
 }
 
-function normalizeDocument(document: StoredDocument | (Omit<StoredDocument, "sourceFileName"> & { sourceFileName?: string | null })): StoredDocument {
+function normalizeDocument(document: StoredDocument | (Omit<StoredDocument, "sourceFileName" | "simplificationSettings"> & { sourceFileName?: string | null; simplificationSettings?: unknown })): StoredDocument {
   return {
     ...document,
     sourceFileName: document.sourceFileName ?? null,
+    simplificationSettings: sanitizeSimplificationSettings(document.simplificationSettings),
   };
 }
 
@@ -42,7 +44,7 @@ async function readDb(): Promise<DatabaseShape> {
   const raw = await fs.readFile(DB_PATH, "utf8");
   const parsed = JSON.parse(raw) as {
     users?: StoredUser[];
-    documents?: Array<StoredDocument | (Omit<StoredDocument, "sourceFileName"> & { sourceFileName?: string | null })>;
+    documents?: Array<StoredDocument | (Omit<StoredDocument, "sourceFileName" | "simplificationSettings"> & { sourceFileName?: string | null; simplificationSettings?: unknown })>;
   };
 
   return {

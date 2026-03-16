@@ -1,8 +1,7 @@
-export const runtime = "nodejs";
-
 import { NextResponse } from "next/server";
 import { extractTextFromPdf, PdfExtractionError } from "@/lib/pdf/extract";
 import { simplifyAndPersistDocument } from "@/lib/services/document-simplification";
+import { parseSimplificationSettings } from "@/lib/simplification/settings";
 
 export async function POST(request: Request) {
   try {
@@ -13,12 +12,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Bitte wählen Sie zuerst eine PDF-Datei aus." }, { status: 400 });
     }
 
+    const rawSettings = formData.get("settings");
+    const parsedRawSettings = typeof rawSettings === "string" ? JSON.parse(rawSettings) : undefined;
+    const parsedSettings = parseSimplificationSettings(parsedRawSettings);
+
+    if (!parsedSettings.ok) {
+      return NextResponse.json({ error: parsedSettings.message }, { status: 400 });
+    }
+
     const extractedText = await extractTextFromPdf(fileEntry);
     const result = await simplifyAndPersistDocument({
       rawText: extractedText,
       sourceType: "pdf",
       titleFallback: fileEntry.name || "PDF-Dokument",
       fileName: fileEntry.name || "PDF-Dokument",
+      settings: parsedSettings.settings,
     });
 
     if (!result.ok) {
@@ -29,6 +37,10 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof PdfExtractionError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+
+    if (error instanceof SyntaxError) {
+      return NextResponse.json({ error: "Die übergebenen Vereinfachungsoptionen sind ungültig." }, { status: 400 });
     }
 
     const message = error instanceof Error ? error.message : "Unbekannter Serverfehler.";

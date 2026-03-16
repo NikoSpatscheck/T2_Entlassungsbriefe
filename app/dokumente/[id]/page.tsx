@@ -5,6 +5,7 @@ import { validateSimplifiedDischargeSummary } from "@/lib/schemas/simplifiedDisc
 import { getSessionUser } from "@/lib/auth/session";
 import { getDocumentForUser } from "@/lib/db/store";
 import { formatDocumentType, formatGermanDate } from "@/lib/documents/format";
+import { getResultLabels } from "@/lib/simplification/result-i18n";
 
 export default async function DocumentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -19,6 +20,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
   }
 
   const result = document.result ? validateSimplifiedDischargeSummary(document.result) : null;
+  const labels = getResultLabels(document.simplificationSettings.targetLanguage);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-5xl px-4 py-8 sm:px-8 sm:py-12">
@@ -33,8 +35,10 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
         {result ? (
           <SimplifiedResultContent
             result={result}
+            labels={labels}
+            targetLanguage={document.simplificationSettings.targetLanguage}
             primaryAction={{ href: "/dokumente", label: "Zurück zur Liste" }}
-            secondaryAction={{ href: "/", label: "Zur Startseite" }}
+            secondaryAction={{ href: "/", label: labels.homeAction }}
           />
         ) : (
           <div className="mt-8 rounded-2xl border border-purple-200 bg-purple-50 p-6">

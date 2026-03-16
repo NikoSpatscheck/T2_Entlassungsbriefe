@@ -2,6 +2,8 @@ import Link from "next/link";
 import { AudioSummaryButton } from "@/components/results/audio-summary-button";
 import { ResultCard } from "@/components/results/result-card";
 import { MISSING_INFO_TEXT, SimplifiedDischargeSummary } from "@/lib/schemas/simplifiedDischargeSummary";
+import { ResultLabels } from "@/lib/simplification/result-i18n";
+import { TargetLanguage } from "@/lib/simplification/settings";
 
 function ListContent({ items }: { items: string[] }) {
   if (!items.length) {
@@ -19,20 +21,24 @@ function ListContent({ items }: { items: string[] }) {
 
 export function SimplifiedResultContent({
   result,
+  labels,
+  targetLanguage,
   primaryAction,
   secondaryAction,
 }: {
   result: SimplifiedDischargeSummary;
+  labels: ResultLabels;
+  targetLanguage: TargetLanguage;
   primaryAction?: { href: string; label: string };
   secondaryAction?: { href: string; label: string };
 }) {
   return (
     <>
       <div className="mt-8 rounded-2xl border border-purple-200 bg-purple-50 p-5 sm:p-6">
-        <h2 className="text-2xl font-semibold text-purple-950">Kurze Zusammenfassung</h2>
+        <h2 className="text-2xl font-semibold text-purple-950">{labels.quickSummaryTitle}</h2>
         <p className="mt-3 text-lg leading-relaxed text-purple-900">{result.spokenSummary}</p>
         <div className="mt-4">
-          <AudioSummaryButton spokenSummary={result.spokenSummary} />
+          <AudioSummaryButton spokenSummary={result.spokenSummary} labels={labels} targetLanguage={targetLanguage} />
         </div>
       </div>
 
@@ -41,27 +47,27 @@ export function SimplifiedResultContent({
           <p>{result.simpleSummary}</p>
         </ResultCard>
 
-        <ResultCard title="Grund für den Krankenhausaufenthalt">
+        <ResultCard title={labels.reasonForVisitTitle}>
           <p>{result.reasonForHospitalVisit}</p>
         </ResultCard>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <ResultCard title="Wichtige Befunde"><ListContent items={result.keyFindings} /></ResultCard>
-          <ResultCard title="Behandlungen im Krankenhaus"><ListContent items={result.treatmentsReceived} /></ResultCard>
-          <ResultCard title="Nächste Schritte"><ListContent items={result.nextSteps} /></ResultCard>
-          <ResultCard title="Warnzeichen"><ListContent items={result.warningSigns} /></ResultCard>
-          <ResultCard title="Nachsorge"><ListContent items={result.followUp} /></ResultCard>
-          <ResultCard title="Fragen für Ihre Ärztin oder Ihren Arzt"><ListContent items={result.questionsForDoctor} /></ResultCard>
+          <ResultCard title={labels.keyFindingsTitle}><ListContent items={result.keyFindings} /></ResultCard>
+          <ResultCard title={labels.treatmentsTitle}><ListContent items={result.treatmentsReceived} /></ResultCard>
+          <ResultCard title={labels.nextStepsTitle}><ListContent items={result.nextSteps} /></ResultCard>
+          <ResultCard title={labels.warningSignsTitle}><ListContent items={result.warningSigns} /></ResultCard>
+          <ResultCard title={labels.followUpTitle}><ListContent items={result.followUp} /></ResultCard>
+          <ResultCard title={labels.doctorQuestionsTitle}><ListContent items={result.questionsForDoctor} /></ResultCard>
         </div>
 
-        <ResultCard title="Medikamente">
+        <ResultCard title={labels.medicationsTitle}>
           {result.medications.length ? (
             <div className="space-y-3">
               {result.medications.map((medication) => (
                 <div key={`${medication.name}-${medication.purpose}`} className="rounded-xl bg-white p-4">
                   <p className="font-semibold text-purple-950">{medication.name}</p>
-                  <p><span className="font-semibold">Wofür:</span> {medication.purpose}</p>
-                  <p><span className="font-semibold">Einnahmehinweis:</span> {medication.instructions}</p>
+                  <p><span className="font-semibold">{labels.medicationPurposeLabel}:</span> {medication.purpose}</p>
+                  <p><span className="font-semibold">{labels.medicationInstructionLabel}:</span> {medication.instructions}</p>
                 </div>
               ))}
             </div>
@@ -70,7 +76,7 @@ export function SimplifiedResultContent({
           )}
         </ResultCard>
 
-        <ResultCard title="Begriffe einfach erklärt">
+        <ResultCard title={labels.glossaryTitle}>
           {result.glossary.length ? (
             <div className="space-y-2">
               {result.glossary.map((entry) => (
@@ -78,7 +84,7 @@ export function SimplifiedResultContent({
               ))}
             </div>
           ) : (
-            <p>Es sind keine zusätzlichen Begriffserklärungen nötig.</p>
+            <p>{labels.noGlossaryNeeded}</p>
           )}
         </ResultCard>
 

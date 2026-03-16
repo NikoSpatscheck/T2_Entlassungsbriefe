@@ -1,28 +1,36 @@
 import { SimplifiedDischargeSummary, validateSimplifiedDischargeSummary } from "@/lib/schemas/simplifiedDischargeSummary";
+import { sanitizeSimplificationSettings, SimplificationSettings } from "@/lib/simplification/settings";
 
 const STORAGE_KEY = "simplified-discharge-result-v1";
 
 type StoredPayload = {
   createdAt: number;
   result: SimplifiedDischargeSummary;
+  settings: SimplificationSettings;
+};
+
+export type LoadedSimplifiedResult = {
+  result: SimplifiedDischargeSummary;
+  settings: SimplificationSettings;
 };
 
 function canUseStorage() {
   return typeof window !== "undefined" && typeof window.sessionStorage !== "undefined";
 }
 
-export function saveSimplifiedResult(result: SimplifiedDischargeSummary) {
+export function saveSimplifiedResult(result: SimplifiedDischargeSummary, settings: SimplificationSettings) {
   if (!canUseStorage()) return;
 
   const payload: StoredPayload = {
     createdAt: Date.now(),
     result,
+    settings,
   };
 
   window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
 
-export function loadSimplifiedResult(maxAgeMs = 30 * 60 * 1000): SimplifiedDischargeSummary | null {
+export function loadSimplifiedResult(maxAgeMs = 30 * 60 * 1000): LoadedSimplifiedResult | null {
   if (!canUseStorage()) return null;
 
   const raw = window.sessionStorage.getItem(STORAGE_KEY);
@@ -43,7 +51,10 @@ export function loadSimplifiedResult(maxAgeMs = 30 * 60 * 1000): SimplifiedDisch
       return null;
     }
 
-    return validated;
+    return {
+      result: validated,
+      settings: sanitizeSimplificationSettings(parsed.settings),
+    };
   } catch {
     window.sessionStorage.removeItem(STORAGE_KEY);
     return null;

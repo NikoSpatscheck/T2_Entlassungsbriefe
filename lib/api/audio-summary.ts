@@ -1,8 +1,10 @@
-export async function requestAudioSummary(spokenSummary: string): Promise<Blob> {
+import { TargetLanguage } from "@/lib/simplification/settings";
+
+export async function requestAudioSummary(spokenSummary: string, targetLanguage: TargetLanguage): Promise<Blob> {
   const response = await fetch("/api/tts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ spokenSummary }),
+    body: JSON.stringify({ spokenSummary, targetLanguage }),
   });
 
   if (!response.ok) {

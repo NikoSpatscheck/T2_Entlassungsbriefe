@@ -3,12 +3,14 @@ import { createDocument } from "@/lib/db/store";
 import { simplifyDischargeLetter } from "@/lib/openai";
 import { validateInputText } from "@/lib/prompts/simplifyDischargeLetter";
 import { DocumentType } from "@/lib/types/document";
+import { SimplificationSettings } from "@/lib/simplification/settings";
 
 export type SimplifyDocumentInput = {
   rawText: string;
   sourceType: DocumentType;
   titleFallback: string;
   fileName?: string;
+  settings: SimplificationSettings;
 };
 
 export async function simplifyAndPersistDocument(input: SimplifyDocumentInput) {
@@ -22,7 +24,7 @@ export async function simplifyAndPersistDocument(input: SimplifyDocumentInput) {
     };
   }
 
-  const summary = await simplifyDischargeLetter(validation.text);
+  const summary = await simplifyDischargeLetter(validation.text, input.settings);
   const user = await getSessionUser();
 
   let savedDocumentId: string | null = null;
@@ -36,6 +38,7 @@ export async function simplifyAndPersistDocument(input: SimplifyDocumentInput) {
       summaryText: summary.spokenSummary,
       result: summary,
       sourceFileName: input.fileName ?? null,
+      simplificationSettings: input.settings,
     });
     savedDocumentId = saved.id;
   }
