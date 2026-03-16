@@ -41,6 +41,9 @@ export default async function DocumentsPage() {
                     <div>
                       <p className="text-xl font-semibold text-purple-950">{document.title || "Gespeichertes Dokument"}</p>
                       <p className="mt-2 text-base text-purple-900">Dieses Dokument wurde am {formatGermanDate(document.createdAt)} erstellt.</p>
+                      {document.sourceFileName ? (
+                        <p className="mt-1 text-base text-purple-900/90">Datei: {document.sourceFileName}</p>
+                      ) : null}
                     </div>
                     <span className="rounded-full bg-purple-100 px-4 py-1.5 text-sm font-semibold text-purple-900">
                       {formatDocumentType(document.type)}

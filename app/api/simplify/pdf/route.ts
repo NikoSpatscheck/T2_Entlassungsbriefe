@@ -1,15 +1,22 @@
 import { NextResponse } from "next/server";
+import { extractTextFromPdf, PdfExtractionError } from "@/lib/pdf/extract";
 import { simplifyAndPersistDocument } from "@/lib/services/document-simplification";
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { text?: unknown };
-    const maybeText = typeof body?.text === "string" ? body.text : "";
+    const formData = await request.formData();
+    const fileEntry = formData.get("file");
 
+    if (!(fileEntry instanceof File)) {
+      return NextResponse.json({ error: "Bitte wählen Sie zuerst eine PDF-Datei aus." }, { status: 400 });
+    }
+
+    const extractedText = await extractTextFromPdf(fileEntry);
     const result = await simplifyAndPersistDocument({
-      rawText: maybeText,
-      sourceType: "freitext",
-      titleFallback: "Freitext-Dokument",
+      rawText: extractedText,
+      sourceType: "pdf",
+      titleFallback: fileEntry.name || "PDF-Dokument",
+      fileName: fileEntry.name || "PDF-Dokument",
     });
 
     if (!result.ok) {
@@ -18,6 +25,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ data: result.data, savedDocumentId: result.savedDocumentId });
   } catch (error) {
+    if (error instanceof PdfExtractionError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+
     const message = error instanceof Error ? error.message : "Unbekannter Serverfehler.";
 
     if (message.includes("OPENAI_API_KEY")) {

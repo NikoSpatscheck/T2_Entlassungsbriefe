@@ -30,10 +30,25 @@ async function ensureDbFile() {
   }
 }
 
+function normalizeDocument(document: StoredDocument | (Omit<StoredDocument, "sourceFileName"> & { sourceFileName?: string | null })): StoredDocument {
+  return {
+    ...document,
+    sourceFileName: document.sourceFileName ?? null,
+  };
+}
+
 async function readDb(): Promise<DatabaseShape> {
   await ensureDbFile();
   const raw = await fs.readFile(DB_PATH, "utf8");
-  return JSON.parse(raw) as DatabaseShape;
+  const parsed = JSON.parse(raw) as {
+    users?: StoredUser[];
+    documents?: Array<StoredDocument | (Omit<StoredDocument, "sourceFileName"> & { sourceFileName?: string | null })>;
+  };
+
+  return {
+    users: parsed.users ?? [],
+    documents: (parsed.documents ?? []).map((document) => normalizeDocument(document)),
+  };
 }
 
 async function writeDb(data: DatabaseShape) {
@@ -66,11 +81,13 @@ export async function createUser(user: Omit<StoredUser, "id" | "createdAt">) {
 export async function createDocument(document: Omit<StoredDocument, "id" | "createdAt" | "updatedAt">) {
   const db = await readDb();
   const now = new Date().toISOString();
+  const { sourceFileName, ...rest } = document;
   const createdDocument: StoredDocument = {
     id: randomUUID(),
     createdAt: now,
     updatedAt: now,
-    ...document,
+    ...rest,
+    sourceFileName: sourceFileName ?? null,
   };
 
   db.documents.push(createdDocument);
