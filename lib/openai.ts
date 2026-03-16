@@ -6,7 +6,8 @@ import {
 } from "@/lib/schemas/simplifiedDischargeSummary";
 
 const OPENAI_API_URL = "https://api.openai.com/v1/responses";
-const OPENAI_MODEL = "gpt-5-mini-2025-08-07";
+//const OPENAI_MODEL = "gpt-5-mini-2025-08-07";
+const OPENAI_MODEL = "gpt-5.4-2026-03-05";
 
 function extractResponseText(payload: unknown) {
   if (!payload || typeof payload !== "object") return null;

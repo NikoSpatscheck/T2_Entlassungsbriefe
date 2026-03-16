@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         model: OPENAI_TTS_MODEL,
         voice: OPENAI_TTS_VOICE,
-        input: `Bitte lesen Sie den folgenden medizinischen Kurztext ruhig und klar auf Deutsch vor: ${spokenSummary}`,
+        input: ` ${spokenSummary}`,
         format: "mp3",
       }),
     });
