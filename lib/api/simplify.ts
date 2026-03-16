@@ -44,3 +44,23 @@ export async function requestSimplifiedPdfSummary(file: File, settings: Simplifi
 
   return ensureValidResponse(payload.data);
 }
+
+
+export async function requestSimplifiedCameraSummary(file: File, settings: SimplificationSettings): Promise<SimplifiedDischargeSummary> {
+  const formData = new FormData();
+  formData.set("file", file);
+  formData.set("settings", JSON.stringify(settings));
+
+  const response = await fetch("/api/simplify/camera", {
+    method: "POST",
+    body: formData,
+  });
+
+  const payload = (await response.json()) as { data?: unknown; error?: string };
+
+  if (!response.ok) {
+    throw new Error(payload.error ?? "Das Bild konnte gerade nicht vereinfacht werden.");
+  }
+
+  return ensureValidResponse(payload.data);
+}

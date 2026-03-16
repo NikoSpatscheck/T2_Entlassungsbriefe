@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { AuthModal } from "@/components/auth/auth-modal";
@@ -12,7 +13,24 @@ export function TopNavigation() {
   return (
     <header className="mx-auto w-full max-w-5xl px-4 pt-5 sm:px-8 sm:pt-8">
       <nav className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/90 px-4 py-3 ring-1 ring-purple-100 backdrop-blur">
-        <Link href="/" className="text-lg font-semibold text-purple-950">Entlassungsbrief-Hilfe</Link>
+        <Link
+          href="/"
+          className="group inline-flex items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-purple-50 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-purple-800"
+          aria-label="Zur Startseite OncoSimplify"
+        >
+          <Image
+            src="/Logo.png"
+            alt="OncoSimplify Logo"
+            width={44}
+            height={44}
+            className="h-11 w-11 rounded-xl border border-purple-100 object-contain"
+            priority
+          />
+          <div className="leading-tight">
+            <p className="text-xs font-semibold tracking-wide text-purple-700 uppercase">OncoSimplify</p>
+            <p className="text-base font-semibold text-purple-950 sm:text-lg">Entlassungsbrief-Hilfe</p>
+          </div>
+        </Link>
 
         {loading ? (
           <span className="text-purple-700">Lade Konto...</span>
