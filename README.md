@@ -10,10 +10,11 @@ Next.js prototype to simplify hospital discharge letters into patient-friendly l
 cp .env.example .env.local
 ```
 
-2. Add your API key to `.env.local`:
+2. Add your credentials to `.env.local`:
 
 ```env
 OPENAI_API_KEY=your_real_key_here
+AUTH_SECRET=ein_langes_zufaelliges_geheimes_token
 ```
 
 3. Run the app:
@@ -23,30 +24,45 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000/input/text`.
+Open `http://localhost:3000`.
 
-## Free Text flow (implemented)
+## Neu: Anmeldung + gespeicherte Dokumente
 
-- Page: `app/input/text/page.tsx`
-- API route: `app/api/simplify/route.ts`
-- OpenAI call helper: `lib/openai.ts`
-- Prompt definitions: `lib/prompts/simplifyDischargeLetter.ts`
-- Structured schema/type + validation: `lib/schemas/simplifiedDischargeSummary.ts`
-- Result UI components: `components/results/*`
+### Enthaltene Funktionen
 
-### Important notes
+- Registrierung und Login mit E-Mail + Passwort
+- Passwort-Hashing per `scrypt`
+- Signierte Session-Cookies (`HttpOnly`, `SameSite=Lax`)
+- Nutzerbezogene Dokument-Historie unter `/dokumente`
+- Detailansicht gespeicherter Ergebnisse unter `/dokumente/[id]`
+- Sofortiges Speichern von Freitext-Ergebnissen nach erfolgreicher Vereinfachung (wenn angemeldet)
 
-- API key is server-side only.
-- The API route validates input length and emptiness.
-- OpenAI output is requested as strict JSON schema.
-- Model output is defensively parsed and normalized before returning to the UI.
-- UI includes loading, error, and structured result states.
+### Persistente Datenablage
 
-## Future extension points
+Für diesen Prototyp wird eine lokale JSON-Datenbank unter `data/app-db.json` genutzt.
 
-- PDF and Camera pages remain placeholders.
-- Add OCR extraction and file parsing before sending content to `/api/simplify`.
-- Add persistent history and consent/privacy controls.
+Gespeichert werden:
+- Nutzerkonten
+- Passwort-Hash + Salt
+- Dokument-Metadaten (Typ, Status, Zeitpunkte)
+- Ursprünglicher Freitext (falls vorhanden)
+- Vollständiges strukturiertes Ergebnisobjekt
+
+## Wichtige Pfade
+
+- Auth-APIs: `app/api/auth/*`
+- Session-Utilities: `lib/auth/session.ts`
+- Passwort-Utilities: `lib/auth/password.ts`
+- Persistenz: `lib/db/store.ts`
+- Top-Navigation + Login-Modal: `components/navigation/top-navigation.tsx`, `components/auth/auth-modal.tsx`
+- Historie: `app/dokumente/page.tsx`
+- Dokument-Detail: `app/dokumente/[id]/page.tsx`
+
+## Hinweise
+
+- Nicht angemeldete Nutzer können den bestehenden Freitext-Flow weiter nutzen.
+- Speicherung in der Historie erfolgt nur für angemeldete Nutzer.
+- Für produktiven Einsatz: auf PostgreSQL + ORM migrieren, CSRF-Schutz ergänzen, Rate-Limits und Audit-Logging hinzufügen.
 
 ## Clinical safety note
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useAuth } from "@/components/auth/auth-provider";
 import { useRouter } from "next/navigation";
 import { BackLink } from "@/components/back-link";
 import { LoadingOverlay } from "@/components/loading-overlay";
@@ -15,6 +16,7 @@ export default function TextInputPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { user } = useAuth();
 
   const countText = useMemo(() => `${text.length} Zeichen`, [text.length]);
 
@@ -67,6 +69,7 @@ export default function TextInputPage() {
           <div id="text-helper" className="flex flex-wrap items-center justify-between gap-3 text-base text-purple-900">
             <p>{countText}</p>
             <p>Hinweis: Bitte keine unnötigen personenbezogenen Daten einfügen.</p>
+            <p>{user ? "Angemeldet: Dieses Dokument wird in Ihrem Verlauf gespeichert." : "Tipp: Melden Sie sich an, damit dieses Dokument später in 'Meine bisherigen Dokumente' erscheint."}</p>
           </div>
 
           {error && <ResultState title="Hinweis" message={error} tone="error" />}

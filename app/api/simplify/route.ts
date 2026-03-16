@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { simplifyDischargeLetter } from "@/lib/openai";
+import { getSessionUser } from "@/lib/auth/session";
+import { createDocument } from "@/lib/db/store";
 import { validateInputText } from "@/lib/prompts/simplifyDischargeLetter";
 
 export async function POST(request: Request) {
@@ -13,7 +15,23 @@ export async function POST(request: Request) {
     }
 
     const summary = await simplifyDischargeLetter(validation.text);
-    return NextResponse.json({ data: summary });
+    const user = await getSessionUser();
+
+    let savedDocumentId: string | null = null;
+    if (user) {
+      const saved = await createDocument({
+        userId: user.id,
+        type: "freitext",
+        title: summary.summaryTitle || "Freitext-Dokument",
+        originalInput: validation.text,
+        status: "verarbeitet",
+        summaryText: summary.spokenSummary,
+        result: summary,
+      });
+      savedDocumentId = saved.id;
+    }
+
+    return NextResponse.json({ data: summary, savedDocumentId });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unbekannter Serverfehler.";
 
