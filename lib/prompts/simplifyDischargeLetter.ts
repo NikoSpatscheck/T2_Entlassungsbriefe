@@ -1,4 +1,4 @@
-import { INPUT_LIMITS } from "@/lib/schemas/simplifiedDischargeSummary";
+import { AUDIO_SUMMARY_FALLBACK, INPUT_LIMITS } from "@/lib/schemas/simplifiedDischargeSummary";
 
 export const SIMPLIFY_SYSTEM_PROMPT = `You are a careful medical document simplification assistant.
 Your task is to explain hospital discharge letters in calm, plain, respectful language for older adults and people with low health literacy.
@@ -9,7 +9,12 @@ Rules:
 - Keep medication instructions cautious and grounded in the document.
 - Keep warning signs practical, clear, and non-alarming.
 - Return valid JSON only, matching the required schema exactly.
-- Never include markdown or prose outside the JSON object.`;
+- Never include markdown or prose outside the JSON object.
+- audioSummaryText is only for text-to-speech readout and must not include formatting or lists.
+- audioSummaryText must be at most 2 sentences, grounded in the document, and summarize:
+  1) the main diagnosis/problem,
+  2) a short practical implication for the patient.
+- If the diagnosis is unclear, return this exact fallback for audioSummaryText: "${AUDIO_SUMMARY_FALLBACK}".`;
 
 export function buildSimplifyUserPrompt(dischargeLetterText: string) {
   return `Simplify the following hospital discharge letter.
@@ -27,11 +32,13 @@ warningSigns (string[]),
 followUp (string[]),
 questionsForDoctor (string[]),
 glossary ({medicalTerm, plainExplanation}[]),
-importantDisclaimer (string).
+importantDisclaimer (string),
+audioSummaryText (string, maximum 2 sentences, plain language).
 
 Every field must be present.
 Use empty arrays if nothing is stated.
 For unknown facts use "Not clearly stated in the document".
+audioSummaryText must be very short and intended for speech playback for older adults.
 
 Discharge letter text:
 """
