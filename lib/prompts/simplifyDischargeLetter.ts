@@ -1,26 +1,26 @@
-import { AUDIO_SUMMARY_FALLBACK, INPUT_LIMITS } from "@/lib/schemas/simplifiedDischargeSummary";
+import { INPUT_LIMITS, MISSING_INFO_TEXT, SPOKEN_SUMMARY_FALLBACK } from "@/lib/schemas/simplifiedDischargeSummary";
 
-export const SIMPLIFY_SYSTEM_PROMPT = `You are a careful medical document simplification assistant.
-Your task is to explain hospital discharge letters in calm, plain, respectful language for older adults and people with low health literacy.
+export const SIMPLIFY_SYSTEM_PROMPT = `You are a careful medical document simplification assistant for German-speaking patients.
+Your task is to explain hospital discharge letters in calm, plain, respectful German for older adults and people with lower health literacy.
 Rules:
 - Preserve meaning from the source text and do not invent facts.
-- Clearly distinguish uncertain or missing information using phrases like "Not clearly stated in the document".
+- The entire JSON content must be in natural, patient-friendly German.
+- Clearly distinguish uncertain or missing information using this exact phrase: "${MISSING_INFO_TEXT}".
 - Do not provide new diagnoses or recommendations beyond what the document says.
 - Keep medication instructions cautious and grounded in the document.
 - Keep warning signs practical, clear, and non-alarming.
+- Use short, understandable sentences and avoid bureaucratic phrasing.
 - Return valid JSON only, matching the required schema exactly.
 - Never include markdown or prose outside the JSON object.
-- audioSummaryText is only for text-to-speech readout and must not include formatting or lists.
-- audioSummaryText must be at most 2 sentences, grounded in the document, and summarize:
-  1) the main diagnosis/problem,
-  2) a short practical implication for the patient.
-- If the diagnosis is unclear, return this exact fallback for audioSummaryText: "${AUDIO_SUMMARY_FALLBACK}".`;
+- spokenSummary is shown in the UI and read aloud. Keep it at most 2 short sentences.
+- spokenSummary must summarize: 1) main diagnosis/problem, 2) practical next implication.
+- If diagnosis is unclear, return this exact fallback for spokenSummary: "${SPOKEN_SUMMARY_FALLBACK}".`;
 
 export function buildSimplifyUserPrompt(dischargeLetterText: string) {
-  return `Simplify the following hospital discharge letter.
-Return strict JSON only.
+  return `Vereinfachen Sie den folgenden Entlassungsbrief.
+Geben Sie ausschließlich valides JSON im geforderten Schema zurück.
 
-Expected schema fields:
+Erwartete Felder:
 summaryTitle (string),
 simpleSummary (string),
 reasonForHospitalVisit (string),
@@ -33,14 +33,14 @@ followUp (string[]),
 questionsForDoctor (string[]),
 glossary ({medicalTerm, plainExplanation}[]),
 importantDisclaimer (string),
-audioSummaryText (string, maximum 2 sentences, plain language).
+spokenSummary (string, maximal 2 kurze Sätze, gut vorlesbar).
 
-Every field must be present.
-Use empty arrays if nothing is stated.
-For unknown facts use "Not clearly stated in the document".
-audioSummaryText must be very short and intended for speech playback for older adults.
+Jedes Feld muss vorhanden sein.
+Verwenden Sie leere Arrays, wenn nichts genannt ist.
+Für unbekannte Fakten verwenden Sie exakt: "${MISSING_INFO_TEXT}".
+spokenSummary muss kurz, ruhig und für das Vorlesen geeignet sein.
 
-Discharge letter text:
+Text des Entlassungsbriefs:
 """
 ${dischargeLetterText}
 """
@@ -51,20 +51,20 @@ export function validateInputText(input: string) {
   const text = input.trim();
 
   if (!text) {
-    return { valid: false as const, message: "Please paste your discharge letter text first." };
+    return { valid: false as const, message: "Bitte fügen Sie zuerst den Text Ihres Entlassungsbriefs ein." };
   }
 
   if (text.length < INPUT_LIMITS.minLength) {
     return {
       valid: false as const,
-      message: `Please paste a longer discharge letter (at least ${INPUT_LIMITS.minLength} characters).`,
+      message: `Bitte fügen Sie einen längeren Text ein (mindestens ${INPUT_LIMITS.minLength} Zeichen).`,
     };
   }
 
   if (text.length > INPUT_LIMITS.maxLength) {
     return {
       valid: false as const,
-      message: `The document is too long. Please keep it below ${INPUT_LIMITS.maxLength.toLocaleString()} characters.`,
+      message: `Der Text ist zu lang. Bitte bleiben Sie unter ${INPUT_LIMITS.maxLength.toLocaleString()} Zeichen.`,
     };
   }
 

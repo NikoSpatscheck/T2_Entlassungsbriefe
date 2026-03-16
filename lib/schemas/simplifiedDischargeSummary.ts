@@ -22,11 +22,13 @@ export type SimplifiedDischargeSummary = {
   questionsForDoctor: string[];
   glossary: SimplifiedGlossaryEntry[];
   importantDisclaimer: string;
-  audioSummaryText: string;
+  spokenSummary: string;
 };
 
-export const AUDIO_SUMMARY_FALLBACK =
-  "The main diagnosis is not clearly stated in the document. Please discuss the details with your doctor.";
+export const SPOKEN_SUMMARY_FALLBACK =
+  "Die Hauptdiagnose ist im Dokument nicht eindeutig erkennbar. Bitte besprechen Sie die Details mit Ihrer Ärztin oder Ihrem Arzt.";
+
+export const MISSING_INFO_TEXT = "Im Dokument nicht klar angegeben.";
 
 export const SIMPLIFIED_SUMMARY_JSON_SCHEMA = {
   name: "simplified_discharge_summary",
@@ -47,7 +49,7 @@ export const SIMPLIFIED_SUMMARY_JSON_SCHEMA = {
       "questionsForDoctor",
       "glossary",
       "importantDisclaimer",
-      "audioSummaryText",
+      "spokenSummary",
     ],
     properties: {
       summaryTitle: { type: "string" },
@@ -85,14 +87,12 @@ export const SIMPLIFIED_SUMMARY_JSON_SCHEMA = {
         },
       },
       importantDisclaimer: { type: "string" },
-      audioSummaryText: { type: "string" },
+      spokenSummary: { type: "string" },
     },
   },
 } as const;
 
-const FALLBACK_TEXT = "Not clearly stated in the document";
-
-function asString(value: unknown, fallback = FALLBACK_TEXT) {
+function asString(value: unknown, fallback = MISSING_INFO_TEXT) {
   return typeof value === "string" && value.trim() ? value.trim() : fallback;
 }
 
@@ -136,7 +136,7 @@ export function validateSimplifiedDischargeSummary(payload: unknown): Simplified
     : [];
 
   return {
-    summaryTitle: asString(record.summaryTitle, "Simplified Discharge Letter Summary"),
+    summaryTitle: asString(record.summaryTitle, "Verständliche Zusammenfassung Ihres Entlassungsbriefs"),
     simpleSummary: asString(record.simpleSummary),
     reasonForHospitalVisit: asString(record.reasonForHospitalVisit),
     keyFindings: asStringArray(record.keyFindings),
@@ -149,9 +149,9 @@ export function validateSimplifiedDischargeSummary(payload: unknown): Simplified
     glossary,
     importantDisclaimer: asString(
       record.importantDisclaimer,
-      "This summary supports understanding and does not replace professional medical advice.",
+      "Diese Zusammenfassung hilft beim Verstehen und ersetzt keine ärztliche Beratung.",
     ),
-    audioSummaryText: asString(record.audioSummaryText, AUDIO_SUMMARY_FALLBACK),
+    spokenSummary: asString(record.spokenSummary, SPOKEN_SUMMARY_FALLBACK),
   };
 }
 

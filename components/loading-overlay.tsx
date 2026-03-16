@@ -4,8 +4,8 @@ type LoadingOverlayProps = {
 };
 
 export function LoadingOverlay({
-  title = "Your document is being simplified",
-  message = "We are preparing an easier explanation of your discharge letter.",
+  title = "Ihr Dokument wird gerade vereinfacht",
+  message = "Wir bereiten eine verständliche Erklärung für Sie vor.",
 }: LoadingOverlayProps) {
   return (
     <div
@@ -22,7 +22,7 @@ export function LoadingOverlay({
         />
         <h2 className="mt-6 text-3xl font-bold text-purple-950">{title}</h2>
         <p className="mt-4 text-xl leading-relaxed text-purple-900/90">{message}</p>
-        <p className="mt-5 text-base text-purple-800">This may take a short moment. Please stay on this page.</p>
+        <p className="mt-5 text-base text-purple-800">Das kann einen kurzen Moment dauern. Bitte bleiben Sie auf dieser Seite.</p>
       </section>
     </div>
   );

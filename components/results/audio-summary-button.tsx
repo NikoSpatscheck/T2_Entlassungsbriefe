@@ -4,81 +4,116 @@ import { useEffect, useRef, useState } from "react";
 import { requestAudioSummary } from "@/lib/api/audio-summary";
 
 type AudioSummaryButtonProps = {
-  audioSummaryText: string;
+  spokenSummary: string;
 };
 
-function base64ToBlob(base64: string, mimeType: string) {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-
-  for (let i = 0; i < binary.length; i += 1) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-
-  return new Blob([bytes], { type: mimeType });
-}
-
-export function AudioSummaryButton({ audioSummaryText }: AudioSummaryButtonProps) {
+export function AudioSummaryButton({ spokenSummary }: AudioSummaryButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [hasCachedAudio, setHasCachedAudio] = useState(false);
   const [error, setError] = useState("");
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const objectUrlRef = useRef<string | null>(null);
+  const lastSummaryRef = useRef<string>("");
 
   useEffect(() => {
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
       }
+
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+      }
     };
   }, []);
 
+  useEffect(() => {
+    if (lastSummaryRef.current === spokenSummary) return;
+
+    lastSummaryRef.current = spokenSummary;
+    setHasCachedAudio(false);
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+  }, [spokenSummary]);
+
+  async function ensureAudioElement() {
+    if (audioRef.current) return audioRef.current;
+
+    const blob = await requestAudioSummary(spokenSummary);
+    const objectUrl = URL.createObjectURL(blob);
+
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+    }
+
+    objectUrlRef.current = objectUrl;
+
+    const audio = new Audio(objectUrl);
+    audio.onended = () => setIsPlaying(false);
+    audio.onerror = () => {
+      setIsPlaying(false);
+      setError("Die Audio-Wiedergabe hat nicht funktioniert. Bitte versuchen Sie es erneut.");
+    };
+
+    audioRef.current = audio;
+    setHasCachedAudio(true);
+
+    return audio;
+  }
+
   async function handleReadAloud() {
-    if (!audioSummaryText || isLoading) return;
+    if (!spokenSummary || isLoading) return;
 
     setError("");
     setIsLoading(true);
 
     try {
-      const payload = await requestAudioSummary(audioSummaryText);
-      const blob = base64ToBlob(payload.audioBase64, payload.mimeType);
-      const objectUrl = URL.createObjectURL(blob);
-
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = objectUrl;
-      } else {
-        audioRef.current = new Audio(objectUrl);
-      }
-
-      audioRef.current.onended = () => setIsPlaying(false);
-      audioRef.current.onerror = () => {
-        setIsPlaying(false);
-        setError("We could not play the audio in this browser. Please try again.");
-      };
-
-      await audioRef.current.play();
+      const audio = await ensureAudioElement();
+      audio.currentTime = 0;
+      await audio.play();
       setIsPlaying(true);
     } catch (playbackError) {
+      setIsPlaying(false);
       setError(
         playbackError instanceof Error
           ? playbackError.message
-          : "We could not prepare the audio summary. Please try again.",
+          : "Die Zusammenfassung konnte nicht vorgelesen werden. Bitte versuchen Sie es erneut.",
       );
     } finally {
       setIsLoading(false);
     }
   }
 
+  const buttonLabel = isLoading
+    ? "Wird vorbereitet..."
+    : isPlaying
+      ? "Erneut vorlesen"
+      : hasCachedAudio
+        ? "Noch einmal abspielen"
+        : "Zusammenfassung vorlesen";
+
   return (
     <div className="space-y-3">
       <button
         type="button"
         onClick={handleReadAloud}
-        disabled={isLoading || !audioSummaryText}
+        disabled={isLoading || !spokenSummary}
         className="min-h-14 rounded-2xl border-2 border-purple-300 bg-purple-100 px-8 text-lg font-semibold text-purple-900 transition hover:bg-purple-200 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-purple-900"
       >
-        {isLoading ? "Preparing audio…" : isPlaying ? "Play again" : "Read summary aloud"}
+        {buttonLabel}
       </button>
+      {!spokenSummary && (
+        <p className="text-base text-red-700">Es ist keine kurze Zusammenfassung zum Vorlesen verfügbar.</p>
+      )}
       {error && <p className="text-base text-red-700">{error}</p>}
     </div>
   );

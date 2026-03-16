@@ -1,23 +1,30 @@
-export type AudioSummaryPayload = {
-  audioBase64: string;
-  mimeType: string;
-};
-
-export async function requestAudioSummary(audioSummaryText: string): Promise<AudioSummaryPayload> {
-  const response = await fetch("/api/audio-summary", {
+export async function requestAudioSummary(spokenSummary: string): Promise<Blob> {
+  const response = await fetch("/api/tts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ audioSummaryText }),
+    body: JSON.stringify({ spokenSummary }),
   });
 
-  const payload = (await response.json()) as { audioBase64?: string; mimeType?: string; error?: string };
+  if (!response.ok) {
+    let message = "Die Audio-Wiedergabe ist aktuell nicht verfügbar. Bitte versuchen Sie es erneut.";
 
-  if (!response.ok || !payload.audioBase64 || !payload.mimeType) {
-    throw new Error(payload.error ?? "Audio playback is unavailable right now. Please try again.");
+    try {
+      const payload = (await response.json()) as { error?: string };
+      if (payload.error) {
+        message = payload.error;
+      }
+    } catch {
+      // Falls die Fehlermeldung nicht als JSON vorliegt, nutzen wir die Standardmeldung.
+    }
+
+    throw new Error(message);
   }
 
-  return {
-    audioBase64: payload.audioBase64,
-    mimeType: payload.mimeType,
-  };
+  const audioBlob = await response.blob();
+
+  if (!audioBlob.size || !audioBlob.type.startsWith("audio/")) {
+    throw new Error("Die Audiodatei konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut.");
+  }
+
+  return audioBlob;
 }

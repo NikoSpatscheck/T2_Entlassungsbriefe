@@ -10,12 +10,12 @@ export async function requestSimplifiedSummary(text: string): Promise<Simplified
   const payload = (await response.json()) as { data?: unknown; error?: string };
 
   if (!response.ok) {
-    throw new Error(payload.error ?? "Unable to simplify the document right now.");
+    throw new Error(payload.error ?? "Das Dokument konnte gerade nicht vereinfacht werden.");
   }
 
   const validated = validateSimplifiedDischargeSummary(payload.data);
   if (!validated) {
-    throw new Error("Received an invalid response format from the server.");
+    throw new Error("Die Antwort vom Server war unvollständig. Bitte versuchen Sie es erneut.");
   }
 
   return validated;
