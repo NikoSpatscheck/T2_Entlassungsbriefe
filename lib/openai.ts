@@ -1,4 +1,5 @@
 import { buildSimplifyUserPrompt, SIMPLIFY_SYSTEM_PROMPT } from "@/lib/prompts/simplifyDischargeLetter";
+import { SimplificationSettings } from "@/lib/simplification/settings";
 import {
   SIMPLIFIED_SUMMARY_JSON_SCHEMA,
   SimplifiedDischargeSummary,
@@ -35,7 +36,7 @@ function extractResponseText(payload: unknown) {
   return null;
 }
 
-export async function simplifyDischargeLetter(dischargeLetterText: string): Promise<SimplifiedDischargeSummary> {
+export async function simplifyDischargeLetter(dischargeLetterText: string, settings: SimplificationSettings): Promise<SimplifiedDischargeSummary> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("Server is missing OPENAI_API_KEY configuration.");
@@ -56,7 +57,7 @@ export async function simplifyDischargeLetter(dischargeLetterText: string): Prom
         },
         {
           role: "user",
-          content: [{ type: "input_text", text: buildSimplifyUserPrompt(dischargeLetterText) }],
+          content: [{ type: "input_text", text: buildSimplifyUserPrompt(dischargeLetterText, settings) }],
         },
       ],
       text: {

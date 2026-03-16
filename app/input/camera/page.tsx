@@ -3,11 +3,14 @@
 import { type ChangeEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BackLink } from "@/components/back-link";
+import { SimplificationSettingsSelector } from "@/components/input/simplification-settings-selector";
 import { PageContainer } from "@/components/page-container";
+import { DEFAULT_SIMPLIFICATION_SETTINGS } from "@/lib/simplification/settings";
 
 export default function CameraInputPage() {
   const router = useRouter();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [settings, setSettings] = useState(DEFAULT_SIMPLIFICATION_SETTINGS);
   const [statusText, setStatusText] = useState(
     "Sie können jetzt ein Foto aufnehmen oder ein vorhandenes Bild auswählen.",
   );
@@ -39,8 +42,15 @@ export default function CameraInputPage() {
   function handleContinue() {
     if (!previewUrl) return;
 
+    const query = new URLSearchParams({
+      source: "camera",
+      targetLanguage: settings.targetLanguage,
+      medicalKnowledgeLevel: settings.medicalKnowledgeLevel,
+      languageStyle: settings.languageStyle,
+    });
+
     // TODO: Hier OCR-Bildverarbeitung anbinden und Text extrahieren.
-    router.push("/processing?source=camera");
+    router.push(`/processing?${query.toString()}`);
   }
 
   return (
@@ -75,6 +85,8 @@ export default function CameraInputPage() {
             className="sr-only"
           />
         </div>
+
+        <SimplificationSettingsSelector settings={settings} onChange={setSettings} />
 
         {previewUrl && (
           <div className="space-y-3 rounded-2xl border border-purple-200 bg-white p-4">

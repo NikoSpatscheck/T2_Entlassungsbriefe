@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { SpeakerIcon } from "@/components/icons";
 import { resultSections } from "@/lib/mock-result";
+import { getResultLabels } from "@/lib/simplification/result-i18n";
+import { isTargetLanguage } from "@/lib/simplification/settings";
 
 type ResultPageProps = {
   searchParams: Promise<{
     source?: string;
     snippet?: string;
     filename?: string;
+    targetLanguage?: string;
   }>;
 };
 
@@ -20,13 +23,15 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
   const params = await searchParams;
   const snippet = params.snippet ? decodeURIComponent(params.snippet) : "";
   const sourceLabel = sourceLabels[params.source ?? ""] ?? "Unbekannte Eingabequelle";
+  const targetLanguage = isTargetLanguage(params.targetLanguage) ? params.targetLanguage : "de";
+  const labels = getResultLabels(targetLanguage);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-5xl px-4 py-8 sm:px-8 sm:py-12">
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-purple-100 sm:p-10">
-        <h1 className="text-3xl font-bold text-purple-950 sm:text-4xl">Ihre vereinfachte Erklärung ist bereit</h1>
+        <h1 className="text-3xl font-bold text-purple-950 sm:text-4xl">{labels.pageTitle}</h1>
         <p className="mt-4 text-lg leading-relaxed text-purple-900/90">
-          Hier sehen Sie eine gut verständliche Zusammenfassung. Bitte besprechen Sie wichtige medizinische Fragen immer zusätzlich mit Ihrer Ärztin oder Ihrem Arzt.
+          {labels.pageIntro}
         </p>
 
         <div className="mt-5 rounded-2xl bg-purple-100 p-4 text-lg text-purple-900">
@@ -52,7 +57,7 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
           className="mt-6 inline-flex min-h-14 items-center gap-3 rounded-2xl border-2 border-purple-200 bg-white px-6 text-lg font-semibold text-purple-900 transition hover:bg-purple-100 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-purple-700"
         >
           <SpeakerIcon className="h-6 w-6" />
-          Vorlesen (demnächst verfügbar)
+          {labels.readSummaryLabel}
         </button>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -69,13 +74,13 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
             href="/"
             className="inline-flex min-h-14 items-center rounded-2xl bg-purple-700 px-8 text-lg font-semibold text-white transition hover:bg-purple-800 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-purple-900"
           >
-            Neues Dokument starten
+            {labels.homeAction}
           </Link>
           <Link
             href="/input/text"
             className="inline-flex min-h-14 items-center rounded-2xl border-2 border-purple-200 bg-white px-8 text-lg font-semibold text-purple-900 transition hover:bg-purple-100 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-purple-700"
           >
-            Direkt Text eingeben
+            {labels.newDocumentAction}
           </Link>
         </div>
       </section>

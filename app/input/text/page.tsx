@@ -6,15 +6,18 @@ import { useRouter } from "next/navigation";
 import { BackLink } from "@/components/back-link";
 import { LoadingOverlay } from "@/components/loading-overlay";
 import { PageContainer } from "@/components/page-container";
+import { SimplificationSettingsSelector } from "@/components/input/simplification-settings-selector";
 import { ResultState } from "@/components/results/result-state";
 import { requestSimplifiedSummary } from "@/lib/api/simplify";
 import { validateInputText } from "@/lib/prompts/simplifyDischargeLetter";
+import { DEFAULT_SIMPLIFICATION_SETTINGS } from "@/lib/simplification/settings";
 import { saveSimplifiedResult } from "@/lib/storage/simplified-result";
 
 export default function TextInputPage() {
   const [text, setText] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [settings, setSettings] = useState(DEFAULT_SIMPLIFICATION_SETTINGS);
   const router = useRouter();
   const { user } = useAuth();
 
@@ -34,8 +37,8 @@ export default function TextInputPage() {
     setIsLoading(true);
 
     try {
-      const response = await requestSimplifiedSummary(validation.text);
-      saveSimplifiedResult(response);
+      const response = await requestSimplifiedSummary(validation.text, settings);
+      saveSimplifiedResult(response, settings);
       router.push("/result/text");
     } catch (submitError) {
       setError(
@@ -71,6 +74,8 @@ export default function TextInputPage() {
             <p>Hinweis: Bitte keine unnötigen personenbezogenen Daten einfügen.</p>
             <p>{user ? "Angemeldet: Dieses Dokument wird in Ihrem Verlauf gespeichert." : "Tipp: Melden Sie sich an, damit dieses Dokument später in 'Meine bisherigen Dokumente' erscheint."}</p>
           </div>
+
+          <SimplificationSettingsSelector settings={settings} onChange={setSettings} />
 
           {error && <ResultState title="Hinweis" message={error} tone="error" />}
 

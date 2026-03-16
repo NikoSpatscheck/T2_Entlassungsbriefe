@@ -1,10 +1,11 @@
 import { INPUT_LIMITS, MISSING_INFO_TEXT, SPOKEN_SUMMARY_FALLBACK } from "@/lib/schemas/simplifiedDischargeSummary";
+import { SimplificationSettings, toPromptInstruction } from "@/lib/simplification/settings";
 
-export const SIMPLIFY_SYSTEM_PROMPT = `You are a careful medical document simplification assistant for German-speaking patients without any medical knowledge (really easy for an 5 year old).
-Your task is to explain hospital discharge letters in calm, plain, respectful German.
+export const SIMPLIFY_SYSTEM_PROMPT = `You are a careful medical document simplification assistant for patients with varying medical background knowledge.
+Your task is to explain hospital discharge letters in calm, plain, respectful language.
 Rules:
 - Preserve meaning from the source text and do not invent facts.
-- The entire JSON content must be in natural, patient-friendly German.
+- The entire JSON content must follow the output language explicitly requested in the user prompt.
 - Clearly distinguish uncertain or missing information using this exact phrase: "${MISSING_INFO_TEXT}".
 - Do not provide new diagnoses or recommendations beyond what the document says.
 - Keep medication instructions cautious and grounded in the document.
@@ -16,9 +17,16 @@ Rules:
 - spokenSummary must summarize: 1) main diagnosis/problem, 2) practical next implication.
 - If diagnosis is unclear, return this exact fallback for spokenSummary: "${SPOKEN_SUMMARY_FALLBACK}".`;
 
-export function buildSimplifyUserPrompt(dischargeLetterText: string) {
+export function buildSimplifyUserPrompt(dischargeLetterText: string, settings: SimplificationSettings) {
+  const instructions = toPromptInstruction(settings);
+
   return `Vereinfachen Sie den folgenden Entlassungsbrief.
 Geben Sie ausschließlich valides JSON im geforderten Schema zurück.
+
+Personalisierung:
+- Output language for every field: ${instructions.targetLanguageName}.
+- Medical prior knowledge adaptation: ${instructions.medicalKnowledgeInstruction}
+- Language style adaptation: ${instructions.languageStyleInstruction}
 
 Erwartete Felder:
 summaryTitle (string),
@@ -39,6 +47,7 @@ Jedes Feld muss vorhanden sein.
 Verwenden Sie leere Arrays, wenn nichts genannt ist.
 Für unbekannte Fakten verwenden Sie exakt: "${MISSING_INFO_TEXT}".
 spokenSummary muss kurz, ruhig und für das Vorlesen geeignet sein.
+Alle Felder müssen vollständig in ${instructions.targetLanguageName} geschrieben sein.
 
 Text des Entlassungsbriefs:
 """

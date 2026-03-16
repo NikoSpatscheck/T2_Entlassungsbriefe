@@ -2,12 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { requestAudioSummary } from "@/lib/api/audio-summary";
+import { ResultLabels } from "@/lib/simplification/result-i18n";
+import { TargetLanguage } from "@/lib/simplification/settings";
 
 type AudioSummaryButtonProps = {
   spokenSummary: string;
+  labels: ResultLabels;
+  targetLanguage: TargetLanguage;
 };
 
-export function AudioSummaryButton({ spokenSummary }: AudioSummaryButtonProps) {
+export function AudioSummaryButton({ spokenSummary, labels, targetLanguage }: AudioSummaryButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasCachedAudio, setHasCachedAudio] = useState(false);
@@ -48,7 +52,7 @@ export function AudioSummaryButton({ spokenSummary }: AudioSummaryButtonProps) {
   async function ensureAudioElement() {
     if (audioRef.current) return audioRef.current;
 
-    const blob = await requestAudioSummary(spokenSummary);
+    const blob = await requestAudioSummary(spokenSummary, targetLanguage);
     const objectUrl = URL.createObjectURL(blob);
 
     if (objectUrlRef.current) {
@@ -61,7 +65,7 @@ export function AudioSummaryButton({ spokenSummary }: AudioSummaryButtonProps) {
     audio.onended = () => setIsPlaying(false);
     audio.onerror = () => {
       setIsPlaying(false);
-      setError("Die Audio-Wiedergabe hat nicht funktioniert. Bitte versuchen Sie es erneut.");
+      setError(labels.audioPlaybackErrorLabel);
     };
 
     audioRef.current = audio;
@@ -86,7 +90,7 @@ export function AudioSummaryButton({ spokenSummary }: AudioSummaryButtonProps) {
       setError(
         playbackError instanceof Error
           ? playbackError.message
-          : "Die Zusammenfassung konnte nicht vorgelesen werden. Bitte versuchen Sie es erneut.",
+          : labels.audioPlaybackErrorLabel,
       );
     } finally {
       setIsLoading(false);
@@ -94,12 +98,12 @@ export function AudioSummaryButton({ spokenSummary }: AudioSummaryButtonProps) {
   }
 
   const buttonLabel = isLoading
-    ? "Wird vorbereitet..."
+    ? labels.preparingAudioLabel
     : isPlaying
-      ? "Erneut vorlesen"
+      ? labels.readAgainLabel
       : hasCachedAudio
-        ? "Noch einmal abspielen"
-        : "Zusammenfassung vorlesen";
+        ? labels.replayAudioLabel
+        : labels.readSummaryLabel;
 
   return (
     <div className="space-y-3">
@@ -112,7 +116,7 @@ export function AudioSummaryButton({ spokenSummary }: AudioSummaryButtonProps) {
         {buttonLabel}
       </button>
       {!spokenSummary && (
-        <p className="text-base text-red-700">Es ist keine kurze Zusammenfassung zum Vorlesen verfügbar.</p>
+        <p className="text-base text-red-700">{labels.noAudioSummaryLabel}</p>
       )}
       {error && <p className="text-base text-red-700">{error}</p>}
     </div>

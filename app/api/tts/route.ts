@@ -1,13 +1,23 @@
 import { NextResponse } from "next/server";
+import { isTargetLanguage } from "@/lib/simplification/settings";
 
 const OPENAI_TTS_URL = "https://api.openai.com/v1/audio/speech";
 const OPENAI_TTS_MODEL = "gpt-4o-mini-tts-2025-12-15";
 const OPENAI_TTS_VOICE = "alloy"; // Kann später zentral ausgetauscht werden, falls eine andere Stimme gewünscht ist.
 
+const TTS_LANGUAGE_HINT: Record<string, string> = {
+  de: "German",
+  en: "English",
+  zh: "Chinese",
+  tr: "Turkish",
+  es: "Spanish",
+};
+
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { spokenSummary?: unknown };
+    const body = (await request.json()) as { spokenSummary?: unknown; targetLanguage?: unknown };
     const spokenSummary = typeof body.spokenSummary === "string" ? body.spokenSummary.trim() : "";
+    const targetLanguage = isTargetLanguage(body.targetLanguage) ? body.targetLanguage : "de";
 
     if (!spokenSummary) {
       return NextResponse.json(
@@ -33,7 +43,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         model: OPENAI_TTS_MODEL,
         voice: OPENAI_TTS_VOICE,
-        input: ` ${spokenSummary}`,
+        input: `Read this text naturally in ${TTS_LANGUAGE_HINT[targetLanguage]}: ${spokenSummary}`,
         format: "mp3",
       }),
     });

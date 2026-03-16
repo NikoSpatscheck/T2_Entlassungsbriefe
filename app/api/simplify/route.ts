@@ -1,15 +1,22 @@
 import { NextResponse } from "next/server";
 import { simplifyAndPersistDocument } from "@/lib/services/document-simplification";
+import { parseSimplificationSettings } from "@/lib/simplification/settings";
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { text?: unknown };
+    const body = (await request.json()) as { text?: unknown; settings?: unknown };
     const maybeText = typeof body?.text === "string" ? body.text : "";
+    const parsedSettings = parseSimplificationSettings(body?.settings);
+
+    if (!parsedSettings.ok) {
+      return NextResponse.json({ error: parsedSettings.message }, { status: 400 });
+    }
 
     const result = await simplifyAndPersistDocument({
       rawText: maybeText,
       sourceType: "freitext",
       titleFallback: "Freitext-Dokument",
+      settings: parsedSettings.settings,
     });
 
     if (!result.ok) {
@@ -51,3 +58,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Es ist ein unerwarteter Fehler aufgetreten. Bitte versuchen Sie es erneut." }, { status: 500 });
   }
 }
+export const runtime = "nodejs";
