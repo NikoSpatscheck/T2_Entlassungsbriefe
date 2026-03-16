@@ -22,7 +22,11 @@ export type SimplifiedDischargeSummary = {
   questionsForDoctor: string[];
   glossary: SimplifiedGlossaryEntry[];
   importantDisclaimer: string;
+  audioSummaryText: string;
 };
+
+export const AUDIO_SUMMARY_FALLBACK =
+  "The main diagnosis is not clearly stated in the document. Please discuss the details with your doctor.";
 
 export const SIMPLIFIED_SUMMARY_JSON_SCHEMA = {
   name: "simplified_discharge_summary",
@@ -43,6 +47,7 @@ export const SIMPLIFIED_SUMMARY_JSON_SCHEMA = {
       "questionsForDoctor",
       "glossary",
       "importantDisclaimer",
+      "audioSummaryText",
     ],
     properties: {
       summaryTitle: { type: "string" },
@@ -80,6 +85,7 @@ export const SIMPLIFIED_SUMMARY_JSON_SCHEMA = {
         },
       },
       importantDisclaimer: { type: "string" },
+      audioSummaryText: { type: "string" },
     },
   },
 } as const;
@@ -145,6 +151,7 @@ export function validateSimplifiedDischargeSummary(payload: unknown): Simplified
       record.importantDisclaimer,
       "This summary supports understanding and does not replace professional medical advice.",
     ),
+    audioSummaryText: asString(record.audioSummaryText, AUDIO_SUMMARY_FALLBACK),
   };
 }
 
