@@ -25,21 +25,30 @@ export function SimplifiedSummaryView({ result }: SimplifiedSummaryViewProps) {
   return (
     <section className="space-y-5 rounded-3xl border border-purple-100 bg-white p-6 shadow-sm sm:p-8">
       <header>
-        <h2 className="text-3xl font-bold text-purple-950">{result.summaryTitle}</h2>
-        <p className="mt-3 text-xl leading-relaxed text-purple-900/90">{result.simpleSummary}</p>
+        <h2 className="text-3xl font-bold text-purple-950">Zusammenfassung zum Vorlesen</h2>
+        <p className="mt-3 text-xl leading-relaxed text-purple-900/90">{result.spokenSummary}</p>
       </header>
 
       <article className="rounded-2xl border border-purple-200 bg-purple-50 p-5">
-        <h3 className="text-2xl font-semibold text-purple-950">Grund für den Krankenhausaufenthalt</h3>
-        <p className="mt-2 text-lg text-purple-900/90">{result.reasonForHospitalVisit}</p>
+        <h3 className="text-2xl font-semibold text-purple-950">Nächste Schritte und Nachsorge</h3>
+        <div className="mt-3 space-y-3">
+          {result.nextStepsAndFollowUp.length > 0 ? (
+            result.nextStepsAndFollowUp.map((entry) => (
+              <div key={`${entry.description}-${entry.purpose}`} className="rounded-xl bg-white p-4">
+                <p className="text-lg text-purple-900/90"><span className="font-medium">Was:</span> {entry.description}</p>
+                <p className="text-lg text-purple-900/90"><span className="font-medium">Wozu:</span> {entry.purpose}</p>
+              </div>
+            ))
+          ) : (
+            <p className="text-lg text-purple-900/80">{MISSING_INFO_TEXT}</p>
+          )}
+        </div>
       </article>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <ListSection title="Wichtige Befunde" items={result.keyFindings} />
-        <ListSection title="Behandlungen im Krankenhaus" items={result.treatmentsReceived} />
-        <ListSection title="Nächste Schritte" items={result.nextSteps} />
-        <ListSection title="Warnzeichen" items={result.warningSigns} />
-        <ListSection title="Nachsorge" items={result.followUp} />
+        <ListSection title="Nebendiagnosen" items={result.secondaryDiagnoses} />
+        <ListSection title="Worauf Sie achten sollten" items={result.whatToLookOutFor} />
+        <ListSection title="Was Sie beachten sollten" items={result.anythingToTakeCareOf} />
         <ListSection title="Fragen für Ihre Ärztin oder Ihren Arzt" items={result.questionsForDoctor} />
       </div>
 

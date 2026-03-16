@@ -7,17 +7,18 @@ export type ResultLabels = {
   emptyMessage: string;
   homeAction: string;
   newDocumentAction: string;
-  quickSummaryTitle: string;
-  reasonForVisitTitle: string;
-  keyFindingsTitle: string;
-  treatmentsTitle: string;
-  nextStepsTitle: string;
-  warningSignsTitle: string;
-  followUpTitle: string;
+  spokenSummaryTitle: string;
+  nextStepsAndFollowUpTitle: string;
+  secondaryDiagnosesTitle: string;
+  whatToLookOutForTitle: string;
+  anythingToTakeCareOfTitle: string;
   doctorQuestionsTitle: string;
   medicationsTitle: string;
   glossaryTitle: string;
+  importantDisclaimerTitle: string;
   noGlossaryNeeded: string;
+  descriptionLabel: string;
+  purposeLabel: string;
   medicationPurposeLabel: string;
   medicationInstructionLabel: string;
   readSummaryLabel: string;
@@ -36,17 +37,18 @@ export const RESULT_LABELS: Record<TargetLanguage, ResultLabels> = {
     emptyMessage: "Bitte starten Sie zuerst mit einem Entlassungsbrief. Danach sehen Sie Ihre vereinfachte Erklärung hier.",
     homeAction: "Zur Startseite",
     newDocumentAction: "Neues Dokument vereinfachen",
-    quickSummaryTitle: "Kurze Zusammenfassung",
-    reasonForVisitTitle: "Grund für den Krankenhausaufenthalt",
-    keyFindingsTitle: "Wichtige Befunde",
-    treatmentsTitle: "Behandlungen im Krankenhaus",
-    nextStepsTitle: "Nächste Schritte",
-    warningSignsTitle: "Warnzeichen",
-    followUpTitle: "Nachsorge",
+    spokenSummaryTitle: "Zusammenfassung zum Vorlesen",
+    nextStepsAndFollowUpTitle: "Nächste Schritte und Nachsorge",
+    secondaryDiagnosesTitle: "Nebendiagnosen",
+    whatToLookOutForTitle: "Worauf Sie achten sollten",
+    anythingToTakeCareOfTitle: "Was Sie beachten sollten",
     doctorQuestionsTitle: "Fragen für Ihre Ärztin oder Ihren Arzt",
     medicationsTitle: "Medikamente",
     glossaryTitle: "Begriffe einfach erklärt",
+    importantDisclaimerTitle: "Wichtiger Hinweis",
     noGlossaryNeeded: "Es sind keine zusätzlichen Begriffserklärungen nötig.",
+    descriptionLabel: "Beschreibung",
+    purposeLabel: "Zweck",
     medicationPurposeLabel: "Wofür",
     medicationInstructionLabel: "Einnahmehinweis",
     readSummaryLabel: "Zusammenfassung vorlesen",
@@ -63,17 +65,18 @@ export const RESULT_LABELS: Record<TargetLanguage, ResultLabels> = {
     emptyMessage: "Please start with a discharge letter first. Your simplified explanation will appear here afterwards.",
     homeAction: "Back to home",
     newDocumentAction: "Simplify another document",
-    quickSummaryTitle: "Short summary",
-    reasonForVisitTitle: "Reason for hospital visit",
-    keyFindingsTitle: "Key findings",
-    treatmentsTitle: "Treatments in hospital",
-    nextStepsTitle: "Next steps",
-    warningSignsTitle: "Warning signs",
-    followUpTitle: "Follow-up care",
+    spokenSummaryTitle: "Spoken summary",
+    nextStepsAndFollowUpTitle: "Next steps and follow-up",
+    secondaryDiagnosesTitle: "Secondary diagnoses",
+    whatToLookOutForTitle: "What to look out for",
+    anythingToTakeCareOfTitle: "Anything to take care of",
     doctorQuestionsTitle: "Questions for your doctor",
     medicationsTitle: "Medication",
     glossaryTitle: "Medical terms explained simply",
+    importantDisclaimerTitle: "Important disclaimer",
     noGlossaryNeeded: "No additional term explanations are needed.",
+    descriptionLabel: "Description",
+    purposeLabel: "Purpose",
     medicationPurposeLabel: "Purpose",
     medicationInstructionLabel: "How to take it",
     readSummaryLabel: "Read summary aloud",
@@ -90,17 +93,18 @@ export const RESULT_LABELS: Record<TargetLanguage, ResultLabels> = {
     emptyMessage: "请先上传或输入出院信。之后，简化说明会显示在这里。",
     homeAction: "返回首页",
     newDocumentAction: "简化另一份文件",
-    quickSummaryTitle: "简要总结",
-    reasonForVisitTitle: "住院原因",
-    keyFindingsTitle: "重要检查结果",
-    treatmentsTitle: "住院期间治疗",
-    nextStepsTitle: "下一步",
-    warningSignsTitle: "警示症状",
-    followUpTitle: "后续随访",
+    spokenSummaryTitle: "朗读摘要",
+    nextStepsAndFollowUpTitle: "下一步与随访",
+    secondaryDiagnosesTitle: "次要诊断",
+    whatToLookOutForTitle: "需要留意的情况",
+    anythingToTakeCareOfTitle: "需要特别注意的事项",
     doctorQuestionsTitle: "可向医生咨询的问题",
     medicationsTitle: "用药",
     glossaryTitle: "医学术语简明解释",
+    importantDisclaimerTitle: "重要提示",
     noGlossaryNeeded: "无需额外术语解释。",
+    descriptionLabel: "说明",
+    purposeLabel: "目的",
     medicationPurposeLabel: "用途",
     medicationInstructionLabel: "服用说明",
     readSummaryLabel: "朗读总结",
@@ -117,17 +121,18 @@ export const RESULT_LABELS: Record<TargetLanguage, ResultLabels> = {
     emptyMessage: "Lütfen önce bir taburcu mektubu ile başlayın. Sadeleştirilmiş açıklamanız burada görünecek.",
     homeAction: "Ana sayfaya dön",
     newDocumentAction: "Başka bir belgeyi sadeleştir",
-    quickSummaryTitle: "Kısa özet",
-    reasonForVisitTitle: "Hastane başvuru nedeni",
-    keyFindingsTitle: "Önemli bulgular",
-    treatmentsTitle: "Hastanede uygulanan tedaviler",
-    nextStepsTitle: "Sonraki adımlar",
-    warningSignsTitle: "Uyarı belirtileri",
-    followUpTitle: "Kontrol ve takip",
+    spokenSummaryTitle: "Sesli özet",
+    nextStepsAndFollowUpTitle: "Sonraki adımlar ve takip",
+    secondaryDiagnosesTitle: "İkincil tanılar",
+    whatToLookOutForTitle: "Dikkat edilmesi gerekenler",
+    anythingToTakeCareOfTitle: "Özen gösterilmesi gerekenler",
     doctorQuestionsTitle: "Doktorunuza sorabileceğiniz sorular",
     medicationsTitle: "İlaçlar",
     glossaryTitle: "Tıbbi terimler basit anlatım",
+    importantDisclaimerTitle: "Önemli bilgilendirme",
     noGlossaryNeeded: "Ek terim açıklamasına gerek yok.",
+    descriptionLabel: "Açıklama",
+    purposeLabel: "Amaç",
     medicationPurposeLabel: "Ne için",
     medicationInstructionLabel: "Kullanım talimatı",
     readSummaryLabel: "Özeti sesli oku",
@@ -144,17 +149,18 @@ export const RESULT_LABELS: Record<TargetLanguage, ResultLabels> = {
     emptyMessage: "Primero cargue o pegue una carta de alta. Después verá aquí su explicación simplificada.",
     homeAction: "Volver al inicio",
     newDocumentAction: "Simplificar otro documento",
-    quickSummaryTitle: "Resumen breve",
-    reasonForVisitTitle: "Motivo de la visita al hospital",
-    keyFindingsTitle: "Hallazgos importantes",
-    treatmentsTitle: "Tratamientos en el hospital",
-    nextStepsTitle: "Próximos pasos",
-    warningSignsTitle: "Señales de alerta",
-    followUpTitle: "Seguimiento",
+    spokenSummaryTitle: "Resumen para lectura en voz alta",
+    nextStepsAndFollowUpTitle: "Próximos pasos y seguimiento",
+    secondaryDiagnosesTitle: "Diagnósticos secundarios",
+    whatToLookOutForTitle: "Qué señales vigilar",
+    anythingToTakeCareOfTitle: "Qué debe cuidar",
     doctorQuestionsTitle: "Preguntas para su médico",
     medicationsTitle: "Medicación",
     glossaryTitle: "Términos médicos explicados de forma simple",
+    importantDisclaimerTitle: "Aviso importante",
     noGlossaryNeeded: "No se necesitan explicaciones adicionales de términos.",
+    descriptionLabel: "Descripción",
+    purposeLabel: "Propósito",
     medicationPurposeLabel: "Para qué sirve",
     medicationInstructionLabel: "Cómo tomarla",
     readSummaryLabel: "Leer resumen en voz alta",
