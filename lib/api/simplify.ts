@@ -1,5 +1,14 @@
 import { SimplifiedDischargeSummary, validateSimplifiedDischargeSummary } from "@/lib/schemas/simplifiedDischargeSummary";
 
+function ensureValidResponse(data: unknown) {
+  const validated = validateSimplifiedDischargeSummary(data);
+  if (!validated) {
+    throw new Error("Die Antwort vom Server war unvollständig. Bitte versuchen Sie es erneut.");
+  }
+
+  return validated;
+}
+
 export async function requestSimplifiedSummary(text: string): Promise<SimplifiedDischargeSummary> {
   const response = await fetch("/api/simplify", {
     method: "POST",
@@ -13,10 +22,23 @@ export async function requestSimplifiedSummary(text: string): Promise<Simplified
     throw new Error(payload.error ?? "Das Dokument konnte gerade nicht vereinfacht werden.");
   }
 
-  const validated = validateSimplifiedDischargeSummary(payload.data);
-  if (!validated) {
-    throw new Error("Die Antwort vom Server war unvollständig. Bitte versuchen Sie es erneut.");
+  return ensureValidResponse(payload.data);
+}
+
+export async function requestSimplifiedPdfSummary(file: File): Promise<SimplifiedDischargeSummary> {
+  const formData = new FormData();
+  formData.set("file", file);
+
+  const response = await fetch("/api/simplify/pdf", {
+    method: "POST",
+    body: formData,
+  });
+
+  const payload = (await response.json()) as { data?: unknown; error?: string };
+
+  if (!response.ok) {
+    throw new Error(payload.error ?? "Die PDF-Datei konnte gerade nicht vereinfacht werden.");
   }
 
-  return validated;
+  return ensureValidResponse(payload.data);
 }

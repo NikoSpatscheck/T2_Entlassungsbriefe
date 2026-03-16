@@ -9,6 +9,7 @@ export type StoredDocument = {
   type: DocumentType;
   title: string;
   originalInput: string | null;
+  sourceFileName: string | null;
   status: DocumentStatus;
   summaryText: string | null;
   result: SimplifiedDischargeSummary | null;

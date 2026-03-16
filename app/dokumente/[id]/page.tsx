@@ -27,6 +27,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
         <div className="mt-4 flex flex-wrap gap-3 text-base text-purple-900">
           <span className="rounded-full bg-purple-100 px-4 py-2">Dokumenttyp: {formatDocumentType(document.type)}</span>
           <span className="rounded-full bg-purple-100 px-4 py-2">Erstellt am: {formatGermanDate(document.createdAt)}</span>
+          {document.sourceFileName ? <span className="rounded-full bg-purple-100 px-4 py-2">Datei: {document.sourceFileName}</span> : null}
         </div>
 
         {result ? (
