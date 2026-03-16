@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         model: OPENAI_TTS_MODEL,
         voice: OPENAI_TTS_VOICE,
-        input: `Read this text naturally in ${TTS_LANGUAGE_HINT[targetLanguage]}: ${spokenSummary}`,
+        input: ` ${TTS_LANGUAGE_HINT[targetLanguage]}: ${spokenSummary}`,
         format: "mp3",
       }),
     });

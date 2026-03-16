@@ -7,11 +7,6 @@ import { getSessionUser } from "@/lib/auth/session";
 export const metadata: Metadata = {
   title: "OncoSimplify – Entlassungsbrief einfach erklärt",
   description: "Ein ruhiger, verständlicher Prototyp zum besseren Verstehen von Entlassungsbriefen.",
-  icons: {
-    icon: [{ url: "/favicon_Logo.png", type: "image/png" }],
-    shortcut: ["/favicon_Logo.png"],
-    apple: [{ url: "/favicon_Logo.png" }],
-  },
 };
 
 export default async function RootLayout({

@@ -13,14 +13,6 @@ export default async function HomePage({
     <main className="mx-auto min-h-screen w-full max-w-5xl px-4 py-8 sm:px-8 sm:py-14">
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-purple-100 sm:p-10">
         <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-purple-100 bg-purple-50/70 p-4 sm:p-5">
-          <Image
-            src="/Logo.png"
-            alt="OncoSimplify Logo"
-            width={64}
-            height={64}
-            className="h-14 w-14 rounded-2xl border border-purple-200 bg-white object-contain sm:h-16 sm:w-16"
-            priority
-          />
           <div>
             <p className="text-sm font-semibold tracking-wide text-purple-700 uppercase">OncoSimplify</p>
             <p className="text-xl font-semibold text-purple-950 sm:text-2xl">Entlassungsbrief-Hilfe</p>
