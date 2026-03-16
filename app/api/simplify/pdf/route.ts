@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import { extractTextFromPdf, PdfExtractionError } from "@/lib/pdf/extract";
 import { simplifyAndPersistDocument } from "@/lib/services/document-simplification";
