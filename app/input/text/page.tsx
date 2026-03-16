@@ -1,32 +1,52 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { BackLink } from "@/components/back-link";
 import { PageContainer } from "@/components/page-container";
+import { ResultState } from "@/components/results/result-state";
+import { SimplifiedSummaryView } from "@/components/results/simplified-summary-view";
+import { requestSimplifiedSummary } from "@/lib/api/simplify";
+import { validateInputText } from "@/lib/prompts/simplifyDischargeLetter";
+import { SimplifiedDischargeSummary } from "@/lib/schemas/simplifiedDischargeSummary";
 
 export default function TextInputPage() {
-  const router = useRouter();
   const [text, setText] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [result, setResult] = useState<SimplifiedDischargeSummary | null>(null);
 
   const countText = useMemo(() => `${text.length} Zeichen`, [text.length]);
 
-  function handleSubmit() {
-    if (!text.trim()) {
-      setError("Bitte fügen Sie zuerst den Text Ihres Entlassungsbriefes ein.");
+  async function handleSubmit() {
+    const validation = validateInputText(text);
+
+    if (!validation.valid) {
+      setError(validation.message);
       return;
     }
 
     setError("");
-    const snippet = encodeURIComponent(text.trim().slice(0, 220));
-    router.push(`/processing?source=text&snippet=${snippet}`);
+    setIsLoading(true);
+
+    try {
+      const response = await requestSimplifiedSummary(validation.text);
+      setResult(response);
+    } catch (submitError) {
+      setResult(null);
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Die Vereinfachung war leider nicht möglich. Bitte versuchen Sie es erneut.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
     <PageContainer
       title="Entlassungsbrief als Text einfügen"
-      intro="Kopieren Sie den Text aus Ihrem Entlassungsbrief in das Feld unten. Nehmen Sie sich Zeit – Sie können alles in Ruhe prüfen, bevor Sie fortfahren."
+      intro="Kopieren Sie den Text aus Ihrem Entlassungsbrief in das Feld unten. Wir erstellen danach eine verständliche, strukturierte Erklärung für Sie."
     >
       <div className="space-y-5">
         <label htmlFor="letterText" className="block text-xl font-semibold text-purple-950">
@@ -43,20 +63,32 @@ export default function TextInputPage() {
         />
         <div id="text-helper" className="flex flex-wrap items-center justify-between gap-3 text-base text-purple-900">
           <p>{countText}</p>
-          <p>Hinweis: Ihre Eingabe wird in diesem Prototyp nur lokal im Browser verwendet.</p>
+          <p>Hinweis: Bitte keine unnötigen personenbezogenen Daten einfügen.</p>
         </div>
-        {error && <p className="rounded-xl bg-red-50 p-3 text-lg font-medium text-red-700">{error}</p>}
+
+        {error && <ResultState title="Hinweis" message={error} tone="error" />}
 
         <div className="flex flex-wrap gap-4 pt-2">
           <button
             type="button"
             onClick={handleSubmit}
-            className="min-h-14 rounded-2xl bg-purple-700 px-8 text-lg font-semibold text-white transition hover:bg-purple-800 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-purple-900"
+            disabled={isLoading}
+            className="min-h-14 rounded-2xl bg-purple-700 px-8 text-lg font-semibold text-white transition hover:bg-purple-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-purple-900"
           >
-            Dokument vereinfachen
+            {isLoading ? "Dokument wird verarbeitet..." : "Dokument vereinfachen"}
           </button>
           <BackLink />
         </div>
+
+        {isLoading && (
+          <ResultState
+            tone="loading"
+            title="Wir arbeiten daran"
+            message="Ihr Entlassungsbrief wird gerade sicher analysiert. Das dauert meist nur einen kurzen Moment."
+          />
+        )}
+
+        {result && !isLoading && <SimplifiedSummaryView result={result} />}
       </div>
     </PageContainer>
   );
